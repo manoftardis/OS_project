@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 typedef struct {
-    uint8_t *buffer;
+    uint8_t *buffer; // buffer che contiene i bit
     int buffer_size;
     int num_bits;
 }   BitMap;
