@@ -1,21 +1,30 @@
 CC=gcc
 CCOPTS=--std=gnu99 -Wall -D_LIST_DEBUG
-AR = ar
+AR=ar
 
-OBJS=bit_map.o
+OBJS=bit_map.o\
+	 buddy_allocator.o
 
-HEADERS=bit_map.h
+HEADERS=bit_map.h buddy_allocator.h
 
-LIBS=
+LIBS=libbuddy.a
 
-BINS=
+BINS=buddy_allocator_test
 
 .phony: clean all
+
 
 all:	$(LIBS) $(BINS)
 
 %.o:	$.c $(HEADERS)
 		$(CC) $(CCOPTS) -c -o $@ $<
+
+libbuddy.a: $(OBJS)
+		$(AR) -rcs $@ $^
+		$(RM) $(OBJS)
+
+buddy_allocator_test: buddy_allocator_test.o $(LIBS)
+		$(CC) $(CCOPTS) -o $@ $^ -lm
 
 clean:
 		rm -rf *.o *~ $(LIBS) $(BINS)
