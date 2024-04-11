@@ -3,7 +3,7 @@
 #define MAX_LEVELS 16 //livello massimo di ricorsione
 
 typedef struct{
-    BitMap* bitmap;
+    BitMap bitmap;
     int num_levels;
     char* memory; //memoria da gestire
     int min_bucket_size; // minima grandezza della pagina

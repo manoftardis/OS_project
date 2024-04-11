@@ -3,17 +3,17 @@
 #include <stdint.h>
 
 typedef struct {
-    uint8_t *buffer; // buffer che contiene i bit
+    char* buffer; // buffer che contiene i bit
     int buffer_size;
     int num_bits;
-}   BitMap;
+} BitMap;
 
 
 //restituisce il numero di bits per tenere i booleani
-int Bitmap_getBytes(int bits);
+int BitMap_getBytes(int bits);
 
 //inizializza la nostra bitmap su un array esterno
-int BitMap_init(BitMap* bit_map, int num_bits, uint8_t* buffer);
+void BitMap_init(BitMap* bit_map, int num_bits, char* buffer);
 
 //setta il numero di bit bit_num nella bitmap (0 o 1)
 void BitMap_setBit(BitMap* bit_map, int bit_num, int status);
