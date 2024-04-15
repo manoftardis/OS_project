@@ -30,6 +30,7 @@ void *pseudo_malloc(size_t size){
     if(size < (PAGE_SIZE/4)){
         ptr = BuddyAllocator_malloc(&allocator, size);
     }else{
+        printf("Allochiamo tramite mmap\n");
         ptr = mmap_malloc(size);
     }
     return ptr;
@@ -43,6 +44,7 @@ void pseudo_free(void* mem){
     if(size < (PAGE_SIZE/4)){
         BuddyAllocator_free(&allocator, mem);
     }else{
+        printf("Deallochiamo tramite munmap\n");
         mmap_free(mem);
     }
 
