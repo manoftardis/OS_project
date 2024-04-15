@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <math.h>
 #include "buddy_allocator.h"
+#include "header.h"
 
 
 //funzioni per la ricerca degli indici associati dato un generico indice
@@ -91,7 +92,7 @@ void* BuddyAllocator_malloc(BuddyAllocator* allocator, int size){
     }
     int mem_size = (1<<allocator->num_levels)*allocator->min_bucket_size;
     printf("grandezza memoria: %d\n", mem_size);
-    size += sizeof(int); //dedichiamo dello spazio per l'indice
+    size += (2*sizeof(int)); //dedichiamo dello spazio per l'header
 
     if(size > mem_size){
         printf("La memoria richiestà è maggiore di tutta la memoria disponibile\n. MEMORY FAULT");
@@ -99,7 +100,6 @@ void* BuddyAllocator_malloc(BuddyAllocator* allocator, int size){
     }
 
     //calcoliamo il livello dove inserire il banco di memoria
-
     int level = allocator->num_levels;
     int start_size = allocator->min_bucket_size;
     for (int i = 0; i<=level; i++){
@@ -139,9 +139,11 @@ void* BuddyAllocator_malloc(BuddyAllocator* allocator, int size){
     //BitMap_setBit(&allocator->bitmap, free_idx, 1);
 
     char* indirizzo = allocator->memory + startIdx(free_idx) * start_size;
-    ((int*)indirizzo)[0] = free_idx; // indirizzo dell'indice da usare nella free;
+    //inseriamo all'inizio della memoria allocata l'header che useremo per la free
+    ((int*)indirizzo)[0] = free_idx;
+    ((int*)indirizzo)[1] = size;
     BitMap_print(&allocator->bitmap);
-    return (void*)(indirizzo+sizeof(int)); // spostiamo l'indirizzo effettivo di 1 int per evitare di sovrascrivere l'indice
+    return (void*)(indirizzo+(2*sizeof(int))); // spostiamo l'indirizzo effettivo resistuito per evitare di sovrascrivere l'header
 
 }
 
@@ -174,14 +176,16 @@ void BuddyAllocator_free(BuddyAllocator* allocator, void *mem){
 
     printf("\nLibero il blocco di memoria\n");
 
-    int *ptr = (int*)mem;
-    int idx_free = ptr[-1];
-
+    int* ptr = (int*)mem;
+    int size = ptr[-1];
+    int idx_free = ptr[-2];
+    printf("grandezza blocco: %d\n", size);
+    printf("indice che stiamo liberando: %d\n", idx_free);
     int buddy_dim = allocator->min_bucket_size * (1 << (allocator->num_levels- levelIdx(idx_free)));
     char *ptr_to_free = allocator->memory + startIdx(idx_free) * buddy_dim;
 
     //controllo allinemanto e double free
-    assert("Puntatore non allineato\n" && (int*)ptr_to_free == &ptr[-1]);
+    assert("Puntatore non allineato\n" && (int*)ptr_to_free == &ptr[-2]);
     assert("Double Free\n" && BitMap_bit(&allocator->bitmap, idx_free));
 
     //settiamo che tutti i figli sono liberi ed eseguiamo un merge
