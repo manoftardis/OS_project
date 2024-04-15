@@ -4,7 +4,7 @@
 void *pseudo_malloc(size_t size);
 
 //funzione che si occupa di de allocare la memoria
-void pseudo_free(void* ptr);
+void pseudo_free(void* mem);
 
 //wrapper per la funzione che inizializza l'allocatore del buddy allocator
-void pseudo_init();
+void pseudo_init(void);

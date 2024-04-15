@@ -1,7 +1,7 @@
 #define _DEFAULT_SOURCE
 
 #include "buddy_allocator.h"
-#include "header.h"
+#include "mmap_allocator.h"
 #include <sys/mman.h>
 #include <errno.h>
 #include <string.h>
@@ -21,7 +21,7 @@ char memory[MEMORY_SIZE];
 
 BuddyAllocator allocator;
 
-void pseudo_init(){
+void pseudo_init(void){
     BuddyAllocator_init(&allocator, BUDDY_LEVELS, buffer, BUFFER_SIZE, memory, MIN_BUCKET_SIZE);
 }
 
@@ -30,12 +30,20 @@ void *pseudo_malloc(size_t size){
     if(size < (PAGE_SIZE/4)){
         ptr = BuddyAllocator_malloc(&allocator, size);
     }else{
-        TODO: //continuare a scrivere l'allocazione per size >= PAGE_SIZE, impostare header del puntater etc
-        ptr = mmap(0,size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS,-1,0);
+        ptr = mmap_malloc(size);
     }
     return ptr;
 }
 
-void pseudo_free(void* ptr){
+void pseudo_free(void* mem){
+
+    //estraiamo la size del blocco per decidere quale free eseguire
+    int* ptr = (int*)mem;
+    int size = ptr[-1];
+    if(size < (PAGE_SIZE/4)){
+        BuddyAllocator_free(&allocator, mem);
+    }else{
+        mmap_free(mem);
+    }
 
 }

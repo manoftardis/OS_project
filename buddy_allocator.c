@@ -2,7 +2,6 @@
 #include <assert.h>
 #include <math.h>
 #include "buddy_allocator.h"
-#include "header.h"
 
 
 //funzioni per la ricerca degli indici associati dato un generico indice
@@ -141,7 +140,7 @@ void* BuddyAllocator_malloc(BuddyAllocator* allocator, int size){
     char* indirizzo = allocator->memory + startIdx(free_idx) * start_size;
     //inseriamo all'inizio della memoria allocata l'header che useremo per la free
     ((int*)indirizzo)[0] = free_idx;
-    ((int*)indirizzo)[1] = size;
+    ((int*)indirizzo)[1] = size-(2*sizeof(int));
     BitMap_print(&allocator->bitmap);
     return (void*)(indirizzo+(2*sizeof(int))); // spostiamo l'indirizzo effettivo resistuito per evitare di sovrascrivere l'header
 
